@@ -1,0 +1,214 @@
+一、基本命令了解 
+<1>ls  : 查看目录的内容或文件属性信息
+
+(1)ls  
+    显示当前目录的内容
+(2)ls -l  
+		显示当前目录下文件的属性信息
+		
+		drwxrwxr-x 4 linux linux 4096 May 28 01:34 class
+		第一部分:文件类型 
+		d -> 目录文件 
+
+
+常见文件类型标识字符
+b(block) : 块设备文件   bcd-lps
+c(character) : 字符设备文件 
+d (directory): 目录文件 
+
+- : 普通文件
+
+l : 软链接文件(windows快捷方式)
+p : 管道文件(常用于进程通信) 
+s : unix域socket文件(常用于网络通信)
+
+第二部分: 权限 [文件所有者权限 + 文件所有者所在组的组员权限 + 其他人权限]
+r 读, w 写, x 执行
+
+
+
+rwx rwx r-x
+
+r  4
+w  2
+x  1
+
+用八进制表示: 0775 
+
+第三部分:
+4 -> 硬链接数  
+
+第四部分:
+linux -> 文件所有者名
+
+第五部分:
+linux -> 文件所属于组
+
+第六部分:
+文件大小 (默认单位byte)
+
+第七部分:
+文件最后一次修改时间 
+
+第八部分:
+文件名 
+
+    ls -R -> 递归显示所有的子目录 例：ls -R 多级目录 
+
+    ls -a -> 显示所有的文件，包括隐藏文件 
+
+    ls -lh -> 带单位(G,K,M)显示文件大小 
+    
+    
+    
+2.chmod 修该文件的权限
+格式：
+		chmod  权限  文件名
+常用：
+u: user（普通用户）
+g: group（组用户）
+o: other(其他用户)
+
+chmod u+x test.c
+chmod u+w test.c
+chmod g-r test.c 
+chmod o+x test.c
+
+
+常用：
+  100 101 001  
+  r-- -w- --x
+故八进制表示：
+r--->4
+w---->2
+x---->1	
+
+chmod 777 test.c
+chmod 755 test.c		
+
+
+练习：
+自己写一个sum.c求1 + 3 + 5 + ..+99的奇数和。
+并且用gcc sum.c -o sum 。
+
+利用chmod 把sum的权限修改为  rwxrw-rw-
+			
+再运行./sum
+
+3.chown 修改文件所有者：
+sudo chown 所有者名 文件
+例如：sudo chown root  test.c 
+
+
+4.chgrp 修改文件所在组
+sudo chgrp  组名  文件
+例如：sudo chgrp root  test.c 
+
+
+5.df 查看磁盘空间的使用情况
+常用：
+		df  -Th
+
+
+6.mount挂载文件系统，文件系统挂载后才能进行使用
+用法：挂载本地设备
+
+sudo mount 设备文件 挂载点目录
+
+例如：
+查看磁盘使用情况
+df -Th
+Filesystem     Type      Size  Used Avail Use% Mounted on
+/dev/sda1      ext4      7.4G  2.8G  4.2G  40% /
+udev           devtmpfs  241M  4.0K  241M   1% /dev
+tmpfs          tmpfs      50M  1.4M   49M   3% /run
+none           tmpfs     5.0M     0  5.0M   0% /run/lock
+none           tmpfs     248M  204K  248M   1% /run/shm
+/dev/sda6      ext4       12G  1.6G  9.4G  14% /home
+.host:/        vmhgfs     79G   67G   12G  85% /mnt/hgfs
+
+把根目录的挂载到/mnt/udisk目录中
+sudo mount /dev/sda1 /mnt/udisk
+练习： 1.把/目录挂载到 /mnt/udisk中去
+
+<6>umount 卸载设备
+
+sudo umount 设备文件
+例如：sudo umount /dev/sda1
+
+
+
+
+
+
+二、文档打包压缩命令详解(结合PPT64讲解) gzip bzip2
+<1>zip压缩
+（1）压缩文件
+ zip test.zip test1.c test2.c
+ (2)解压文件
+ unzip test.zip
+
+<2>gzip压缩(注：只能对普通文件压缩，不能对目录文件压缩)
+(1)压缩文件
+gzip test.c
+(2)解压文件
+gunzip test.c.gz
+ 	
+<3>bzip2压缩（注：bzip2对一个文件进行高比例压缩，不能对目录文件压缩）
+(1)压缩文件
+bzip2 test.c
+(2)解压文件
+bunzip2  test.c.bzip2
+
+
+<4>tar  对目录和普通文件都可以进行打包压缩 (重点)
+参数:
+ 
+c -> 创建
+x -> 释放
+z -> gzip操作
+j -> bzip2操作
+v -> 显示过程
+f -> 指定文件名(一定需要放在最后)
+ 
+(1)对一个目录直接进行打包压缩命令
+sudo tar -czvf work.tar.gz work
+sudo tar -cjvf work.tar.bz2 work
+
+(2)释放一个文件
+sudo tar -xzvf work.tar.gz
+sudo tar -xjvf work.tar.bz2
+或者
+sudo tar -xvf work.tar.gz/work.tar.bz2(两种都可以释放)
+参数：
+-C 指定释放到一个指定的目录
+tar  -xvf dir.tar.gz -C 指定的目录
+
+练习： 
+1.在用户主目录下以自己的名字创建一个目录(例如：chw)
+cd /home/ubuntu
+mkdir chw
+2.进入该目录，并且在里面创建一个hello.c
+cd chw
+touch hello.c
+3.将chw文件夹打包并压缩成chw.tar.gz
+cd ..
+sudo tar czvf chw.tar.gz ./chw
+4.然后在新建一个（chw_test）,然后将chw.tar.gz释放到该文件夹中。
+mkdir chw_test
+tar -xvf chw.tar.gz -C ./chw_test
+5.最后删除删除chw,chw.tar.gz ,chw_test
+rm -rf  chw chw.tar.gz chw_test
+
+
+
+
+
+
+
+
+
+
+
+
+
